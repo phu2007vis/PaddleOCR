@@ -1,6 +1,6 @@
 import json
 from typing import List, Dict, Any
-
+import os
 
 def process_polygons_to_label(
 	polygons: List[List[List[float]]], 
@@ -22,19 +22,26 @@ def process_polygons_to_label(
   
 	# Get unique coordinates using set comprehension for better performance
 	# Convert inner arrays to tuples for hashability
+	
 	unique_coords = {tuple(tuple(point) for point in poly) for poly in polygons}
 	
 	# Build label dictionary using list comprehension with explicit type hints
 	all_label_dict: List[Dict[str, Any]] = [
-            {
-                "transcription": transcription,
-                # Convert numpy types to native Python types
-                "points": [[int(point[0]), int(point[1])] for point in group],
-                "difficult": difficult
-            }
-            for group in unique_coords
-    ]
-
+			{
+				"transcription": transcription,
+				# Convert numpy types to native Python types
+				"points": [[int(point[0]), int(point[1])] for point in group],
+				"difficult": difficult
+			}
+			for group in unique_coords
+	]
+	
+	txt_dir = os.path.dirname(file_path)
+	if txt_dir and not os.path.exists(txt_dir):
+		os.makedirs(txt_dir, exist_ok=True)
+	# Create empty file if it doesn't exist
+	if not os.path.exists(file_path):
+		open(file_path, 'a').close()
 	
 	# Write directly to file with proper error handling
 	with open(file_path, 'a') as f:
