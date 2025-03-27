@@ -2,15 +2,15 @@ Global:
   use_gpu: true
   use_xpu: false
   use_mlu: false
-  epoch_num: 1200
+  epoch_num: 2000
   log_smooth_window: 20
   print_batch_step: 10
   save_model_dir: ./output/db_mv3/
   save_epoch_step: 1200
   # evaluation is run every 2000 iterations
-  eval_batch_step: [0, 2000]
+  eval_batch_step: [0, 200]
   cal_metric_during_train: False
-  pretrained_model: ./pretrain_models/MobileNetV3_large_x0_5_pretrained
+  pretrained_model: /work/21013187/phuoc/paddle_detect/PaddleOCR/pretrain_models/pretrain_models/MobileNetV3_large_x0_5_pretrained.pdparams
   checkpoints:
   save_inference_dir:
   use_visualdl: False
@@ -64,9 +64,9 @@ Metric:
 Train:
   dataset:
     name: SimpleDataSet
-    data_dir: ./train_data/icdar2015/text_localization/
+    data_dir: /work/21013187/phuoc/paddle_detect/data/psudo_image
     label_file_list:
-      - ./train_data/icdar2015/text_localization/train_icdar2015_label.txt
+      - /work/21013187/phuoc/paddle_detect/data/Label.txt
     ratio_list: [1.0]
     transforms:
       - DecodeImage: # load image
@@ -79,9 +79,11 @@ Train:
             - { 'type': Affine, 'args': { 'rotate': [-10, 10] } }
             - { 'type': Resize, 'args': { 'size': [0.5, 3] } }
       - EastRandomCropData:
-          size: [640, 640]
+          size: [500, 500]
           max_tries: 50
-          keep_ratio: true
+          keep_ratio: False
+      # - DetResizeForTest:
+      #     image_shape: [736, 736]
       - MakeBorderMap:
           shrink_ratio: 0.4
           thresh_min: 0.3
@@ -107,9 +109,9 @@ Train:
 Eval:
   dataset:
     name: SimpleDataSet
-    data_dir: ./train_data/icdar2015/text_localization/
+    data_dir: /work/21013187/phuoc/paddle_detect/data/psudo_image
     label_file_list:
-      - ./train_data/icdar2015/text_localization/test_icdar2015_label.txt
+      - /work/21013187/phuoc/paddle_detect/data/Label.txt
     transforms:
       - DecodeImage: # load image
           img_mode: BGR

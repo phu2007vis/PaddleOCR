@@ -39,7 +39,7 @@ from ppocr.utils.utility import set_seed
 from ppocr.modeling.architectures import apply_to_static
 import tools.program as program
 import tools.naive_sync_bn as naive_sync_bn
-
+from visualize import visualize
 dist.get_world_size()
 
 
@@ -53,6 +53,8 @@ def main(config, device, logger, vdl_writer, seed):
     # build dataloader
     set_signal_handlers()
     train_dataloader = build_dataloader(config, "Train", device, logger, seed)
+    visualize(train_dataloader,'train')
+    
     if len(train_dataloader) == 0:
         logger.error(
             "No Images in train dataset, please ensure\n"
@@ -65,6 +67,7 @@ def main(config, device, logger, vdl_writer, seed):
         valid_dataloader = build_dataloader(config, "Eval", device, logger, seed)
     else:
         valid_dataloader = None
+   
     step_pre_epoch = len(train_dataloader)
 
     # build post process

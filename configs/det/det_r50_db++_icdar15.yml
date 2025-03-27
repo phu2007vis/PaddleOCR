@@ -4,13 +4,13 @@ Global:
   epoch_num: 1000
   log_smooth_window: 20
   print_batch_step: 10
-  save_model_dir: ./output/det_r50_icdar15/
+  save_model_dir: /work/21013187/phuoc/paddle_detect//output/det_r50_icdar15/
   save_epoch_step: 200
   eval_batch_step:
   - 0
-  - 2000
+  - 30
   cal_metric_during_train: false
-  pretrained_model: ./pretrain_models/ResNet50_dcn_asf_synthtext_pretrained
+  pretrained_model: /work/21013187/phuoc/paddle_detect//output/det_r50_icdar15_v3/best_accuracy
   checkpoints: null
   save_inference_dir: null
   use_visualdl: false
@@ -43,15 +43,15 @@ Optimizer:
   momentum: 0.9
   lr:
     name: DecayLearningRate
-    learning_rate: 0.007
+    learning_rate: 0.004
     epochs: 1000
     factor: 0.9
     end_lr: 0
   weight_decay: 0.0001
 PostProcess:
   name: DBPostProcess
-  thresh: 0.3
-  box_thresh: 0.6
+  thresh: 0.15
+  box_thresh: 0.3
   max_candidates: 1000
   unclip_ratio: 1.5
   det_box_type: 'quad' # 'quad' or 'poly'
@@ -61,9 +61,9 @@ Metric:
 Train:
   dataset:
     name: SimpleDataSet
-    data_dir: ./train_data/icdar2015/text_localization/                                                                        
-    label_file_list:                                                                                            
-    - ./train_data/icdar2015/text_localization/train_icdar2015_label.txt                                                     
+    data_dir: /work/21013187/phuoc/TextRecognitionDataGenerator2/outs2
+    label_file_list:
+    - /work/21013187/phuoc/TextRecognitionDataGenerator2/outs2/labels.txt                                                  
     ratio_list:                                                                                                 
     - 1.0 
     transforms:
@@ -75,7 +75,7 @@ Train:
         augmenter_args:
         - type: Fliplr
           args:
-            p: 0.5
+            p: 0.7
         - type: Affine
           args:
             rotate:
@@ -91,7 +91,31 @@ Train:
         - 640
         - 640
         max_tries: 10
-        keep_ratio: true
+        keep_ratio: false
+  
+    - RandomContrastBrighness:
+        p: 1
+        brightness_limit: 0.2
+        contrast_limit: [-0.15,0]
+    - RandomColor:
+        p: 0.6
+        hue: 0.1
+        saturation: 0.1
+
+    - RandomNoise:
+        p: 1
+        min_value: 0.02
+        max_value: 0.03
+
+    - RandomBlur:
+        p: 1
+        motion_blur_limit: 13
+        gau_sigma_limit: 1.0
+        gau_blur_limit: 11
+    - RandomGammar:
+        p: 0.7
+        gamma_limit: [70,110]
+
     - MakeShrinkMap:
         shrink_ratio: 0.4
         min_text_size: 8
@@ -121,14 +145,15 @@ Train:
   loader:
     shuffle: true
     drop_last: false
-    batch_size_per_card: 4
-    num_workers: 8
+    batch_size_per_card: 32
+    num_workers: 4
+
 Eval:
   dataset:
     name: SimpleDataSet
-    data_dir: ./train_data/icdar2015/text_localization                                                                          
-    label_file_list:                                                                                            
-    - ./train_data/icdar2015/text_localization/test_icdar2015_label.txt
+    data_dir: /work/21013187/phuoc/paddle_detect/data/testv3
+    label_file_list: 
+    - /work/21013187/phuoc/paddle_detect/data/testv3/Label.txt
     transforms:
     - DecodeImage:
         img_mode: BGR
@@ -136,8 +161,8 @@ Eval:
     - DetLabelEncode: null
     - DetResizeForTest:
         image_shape:
-        - 1152
-        - 2048
+        - 640
+        - 640
     - NormalizeImage:
         scale: 1./255.
         mean:
@@ -160,5 +185,5 @@ Eval:
     shuffle: false
     drop_last: false
     batch_size_per_card: 1
-    num_workers: 2
+    num_workers: 3
 profiler_options: null

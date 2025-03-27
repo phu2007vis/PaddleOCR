@@ -34,6 +34,7 @@ class SimpleDataSet(Dataset):
 
         self.delimiter = dataset_config.get("delimiter", "\t")
         label_file_list = dataset_config.pop("label_file_list")
+       
         data_source_num = len(label_file_list)
         ratio_list = dataset_config.get("ratio_list", 1.0)
         if isinstance(ratio_list, (float, int)):
@@ -45,7 +46,8 @@ class SimpleDataSet(Dataset):
         self.data_dir = dataset_config["data_dir"]
         self.do_shuffle = loader_config["shuffle"]
         self.seed = seed
-        logger.info("Initialize indexes of datasets:%s" % label_file_list)
+        if logger:
+            logger.info("Initialize indexes of datasets:%s" % label_file_list)
         self.data_lines = self.get_image_info_list(label_file_list, ratio_list)
         self.data_idx_order_list = list(range(len(self.data_lines)))
         if self.mode == "train" and self.do_shuffle:
@@ -101,6 +103,7 @@ class SimpleDataSet(Dataset):
             label = substr[1]
             img_path = os.path.join(self.data_dir, file_name)
             data = {"img_path": img_path, "label": label}
+            
             if not os.path.exists(img_path):
                 continue
             with open(data["img_path"], "rb") as f:
@@ -119,6 +122,7 @@ class SimpleDataSet(Dataset):
     def __getitem__(self, idx):
         file_idx = self.data_idx_order_list[idx]
         data_line = self.data_lines[file_idx]
+      
         try:
             data_line = data_line.decode("utf-8")
             substr = data_line.strip("\n").split(self.delimiter)
@@ -132,8 +136,10 @@ class SimpleDataSet(Dataset):
             with open(data["img_path"], "rb") as f:
                 img = f.read()
                 data["image"] = img
+            
             data["ext_data"] = self.get_ext_data()
             data["filename"] = data["img_path"]
+            
             outs = transform(data, self.ops)
         except:
             self.logger.error(

@@ -38,12 +38,14 @@ class DecodeImage(object):
 
     def __call__(self, data):
         img = data["image"]
-        assert type(img) is bytes and len(img) > 0, "invalid input 'img' in DecodeImage"
-        img = np.frombuffer(img, dtype="uint8")
-        if self.ignore_orientation:
-            img = cv2.imdecode(img, cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR)
-        else:
-            img = cv2.imdecode(img, 1)
+
+        assert (type(img) is bytes or isinstance(img,np.ndarray)) and len(img) > 0, "invalid input 'img' in DecodeImage"
+        if not isinstance(img,np.ndarray):
+            img = np.frombuffer(img, dtype="uint8")
+            if self.ignore_orientation:
+                img = cv2.imdecode(img, cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR)
+            else:
+                img = cv2.imdecode(img, 1)
         if img is None:
             return None
         if self.img_mode == "GRAY":

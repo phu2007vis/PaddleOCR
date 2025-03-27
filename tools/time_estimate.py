@@ -40,7 +40,7 @@ import tools.program as program
 
 
 def draw_det_res(dt_boxes, config, img, img_name, save_path):
-    import cv2
+    
 
     src_im = img
     for box in dt_boxes:
@@ -62,7 +62,6 @@ def main():
 
     load_model(config, model)
     # build post process
-    print(config['PostProcess'])
     post_process_class = build_post_process(config["PostProcess"])
 
     # create data ops
@@ -89,13 +88,14 @@ def main():
                 img = f.read()
                 data = {"image": img}
             batch = transform(data, ops)
-
-            images = np.expand_dims(batch[0], axis=0)
-            shape_list = np.expand_dims(batch[1], axis=0)
-           
+          
+            images = np.repeat(np.expand_dims(batch[0], axis=0),28, axis=0)
+            shape_list = np.repeat(np.expand_dims(batch[1], axis=0), 28, axis=0)
+            # import pdb;pdb.set_trace()
+            t = time()
             images = paddle.to_tensor(images)
             preds = model(images)
-            
+            print(time()-t)
             post_result = post_process_class(preds, shape_list)
             
             src_img = cv2.imread(file)
