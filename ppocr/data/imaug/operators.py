@@ -523,3 +523,57 @@ class GrayImageChannelFormat(object):
 
         data["src_image"] = img
         return data
+
+
+class PhuocResize(object):
+    def __init__(self, **kwargs):
+        super(PhuocResize, self).__init__()
+        self.size = kwargs["size"]
+
+    def __call__(self, data):
+        
+        img = data["image"]
+        text_polys = data["polys"]
+        ignore_tags = data["ignore_tags"]
+        texts = data["texts"]
+        
+        origin_h,origin_w = img.shape[:-1]
+        
+        # Calculate scales
+        w_size, h_size = self.size  # target size
+        w_scale = w_size / origin_w   # width scale factor
+        h_scale = h_size / origin_h   # height scale factor
+        
+        
+        # When not keeping ratio
+        img = cv2.resize(
+            img,
+            tuple(self.size)
+        )
+          
+        
+        # Crop and transform text polygons
+        text_polys_crop = []
+        ignore_tags_crop = []
+        texts_crop = []
+        
+        for poly, text, tag in zip(text_polys, texts, ignore_tags):
+          
+            
+            # Scale independently for width and height when not keeping ratio
+            scale_factors = np.array([w_scale, h_scale])
+            scaled_poly = (poly * scale_factors).tolist()
+        
+            text_polys_crop.append(scaled_poly)
+            ignore_tags_crop.append(tag)
+            texts_crop.append(text)
+        
+        # Update data dictionary
+        data["image"] = img
+        data["polys"] = np.array(text_polys_crop)
+        data["ignore_tags"] = ignore_tags_crop
+        data["texts"] = texts_crop
+        
+        return data
+
+      

@@ -61,9 +61,9 @@ Metric:
 Train:
   dataset:
     name: SimpleDataSet
-    data_dir: /work/21013187/phuoc/TextRecognitionDataGenerator2/outs2
+    data_dir: /work/21013187/phuoc/paddle_detect/data/train_crop/crop
     label_file_list:
-    - /work/21013187/phuoc/TextRecognitionDataGenerator2/outs2/labels.txt                                                  
+    - /work/21013187/phuoc/paddle_detect/data/train_crop/Label.txt                                                 
     ratio_list:                                                                                                 
     - 1.0 
     transforms:
@@ -86,12 +86,8 @@ Train:
             size:
             - 0.5
             - 3
-    - EastRandomCropData:
-        size:
-        - 640
-        - 640
-        max_tries: 10
-        keep_ratio: false
+    - PhuocResize:
+        size: [640,640]
   
     - RandomContrastBrighness:
         p: 1
@@ -151,9 +147,9 @@ Train:
 Eval:
   dataset:
     name: SimpleDataSet
-    data_dir: /work/21013187/phuoc/paddle_detect/data/testv3
+    data_dir: /work/21013187/phuoc/paddle_detect/data/val_crop/crop
     label_file_list: 
-    - /work/21013187/phuoc/paddle_detect/data/testv3/Label.txt
+    - /work/21013187/phuoc/paddle_detect/data/val_crop/Label.txt
     transforms:
     - DecodeImage:
         img_mode: BGR

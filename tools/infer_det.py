@@ -37,8 +37,9 @@ from ppocr.postprocess import build_post_process
 from ppocr.utils.save_load import load_model
 from ppocr.utils.utility import get_image_file_list
 import tools.program as program
-
-
+from tools.merge_image import Merger
+from tools.json_ops import get_label_map
+merger = Merger()
 def draw_det_res(dt_boxes, config, img, img_name, save_path):
     import cv2
 
@@ -82,6 +83,11 @@ def main():
         os.makedirs(os.path.dirname(save_res_path))
 
     model.eval()
+    infer_label = config["Global"]["infer_label"]
+    label_map = None
+    if infer_label is not None:
+        label_map = get_label_map(infer_label)
+        
     with open(save_res_path, "wb") as fout:
         for file in get_image_file_list(config["Global"]["infer_img"]):
             logger.info("infer_img: {}".format(file))
@@ -99,7 +105,10 @@ def main():
             post_result = post_process_class(preds, shape_list)
             
             src_img = cv2.imread(file)
-
+            if label_map is not None:
+                gt_boxes = label_map[os.path.basename(file)]
+                merger.visualize(src_img, gt_boxes,color = (0,0,255))
+               
             dt_boxes_json = []
             # parser boxes if post_result is dict
             if isinstance(post_result, dict):

@@ -93,7 +93,6 @@ def create_operators(op_param_list, global_config=None):
         param = {} if operator[op_name] is None else operator[op_name]
         if global_config is not None:
             param.update(global_config)
-        print(param)
         op = eval(op_name)(**param)
         ops.append(op)
    

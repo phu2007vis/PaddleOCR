@@ -27,7 +27,7 @@ import tools.program as program
 from tools.slice_image import SliceImage
 import cv2
 from tools.merge_image import Merger
-
+from tools.json_ops import get_label_map
 
 def draw_det_res(dt_boxes, img, img_name, save_path,color = (255, 255, 0)):
 
@@ -77,6 +77,10 @@ def main():
 					os.path.dirname(config["Global"]["save_res_path"]) + "/det_results/"
 				)
 	model.eval()
+	infer_label = config["Global"]["infer_label"]
+	label_map = None
+	if infer_label is not None:
+		label_map = get_label_map(infer_label)
 	with open(save_res_path, "wb") as fout:
 		for file in get_image_file_list(config["Global"]["infer_img"]):
 			logger.info("infer_img: {}".format(file))
@@ -102,14 +106,15 @@ def main():
 			
 			db_visualize = merger.db_scan.visualize(original_image)
 			draw_det_res(final_box, np.copy(original_image), file, os.path.join(save_det_path,'final'))
-			
+			if label_map is not None:
+					gt_boxes = label_map[os.path.basename(file)]
+					merger.visualize(original_image, gt_boxes,color = (0,0,255))
 			draw_det_res(dbscan_final_box, original_image, file, os.path.join(save_det_path,'dbscan2'),color = (0,255,0))
 			
 		
 			dt_boxes_json = []
 			# parser boxes if post_result is dict
 			file_id = os.path.splitext(file)[0]
-
 			
 			# draw_det_res([],db_visualize,file,os.path.join(save_det_path,'final_dbscan'))
 			for i,(src_img,boxes) in enumerate(zip(images,post_result)):
@@ -122,7 +127,7 @@ def main():
 					tmp_json["points"] = np.array(box).tolist()
 					dt_boxes_json.append(tmp_json)
 				
-
+				
 				draw_det_res(boxes, src_img, file_name, os.path.join(save_det_path,'crop_result'))
 			
 			otstr = file_name + "\t" + json.dumps(dt_boxes_json) + "\n"

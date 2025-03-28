@@ -184,7 +184,7 @@ def clip_polygon_to_slice_v2(corners, slice_bounds):
 	if clipped.geom_type == 'Polygon':
 	# Only access 'exterior' if the intersection is a Polygon
 		
-		if clipped.area < 0.005*((max_x-min_x)*(max_y-min_y)):
+		if clipped.area < 0.0003*((max_x-min_x)*(max_y-min_y))*(840/(max_y-min_y)):
 			return None
 		clipped = clipped.exterior.coords.xy
 	elif clipped.geom_type == 'Point':

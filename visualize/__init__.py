@@ -203,9 +203,10 @@ def visualize_poly_image(
 if __name__ == "__main__":
 	# Example parameters
 	img_name = None
-	label_path = "/work/21013187/phuoc/TextRecognitionDataGenerator2/outs2/labels.txt"
-	img_dir = "/work/21013187/phuoc/TextRecognitionDataGenerator2/outs2"
-
+	# label_path = "/work/21013187/phuoc/TextRecognitionDataGenerator2/outs2/labels.txt"
+	
+	img_dir = "/work/21013187/phuoc/paddle_detect/data/testv1"
+	label_path = "/work/21013187/phuoc/paddle_detect/data/testv1/Label.txt"
 	# Get visualized image
 	result_image = visualize_poly_image(img_name, label_path, img_dir)
 	

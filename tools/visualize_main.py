@@ -60,6 +60,8 @@ def main(config, device, logger, vdl_writer, seed):
 
 if __name__ == "__main__":
     config, device, logger, vdl_writer = program.preprocess(is_train=True)
+    import shutil 
+    shutil.rmtree('/work/21013187/phuoc/paddle_detect/data/visualize')
     seed = config["Global"]["seed"] if "seed" in config["Global"] else 1024
     set_seed(seed)
     main(config, device, logger, vdl_writer, seed)
